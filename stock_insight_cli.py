@@ -47,6 +47,56 @@ class StockInsightCLI:
         else:
             print("Could not retrieve data.")
 
+    def handle_add_to_watchlist(self):
+        print("Add a stock to your watchlist.")
+        symbol = input("Enter the stock symbol (e.g., AAPL for Apple): ").strip().upper()
+
+        current_price = self.get_current_stock_price(symbol)
+        if current_price is None:
+            print("Failed to fetch the current price for the stock.")
+            return
+        
+        print(f"Current price of {symbol}: {current_price}")
+        price = input("Enter the target price: ").strip()
+
+        try:
+            response = requests.post(f'{self.base_url}add_to_watchlist', json={'symbol': symbol, 'price': price})
+            response.raise_for_status()
+            data = response.json()
+            print(data.get('message', 'Stock added to watchlist successfully'))
+        except requests.HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+        except Exception as err:
+            print(f'An error occurred: {err}')
+
+    def get_current_stock_price(self, symbol):
+        """Fetch the current stock price for a given symbol."""
+        print(f"Fetching the most recennt closing price for {symbol}...")
+        data = self.fetch_stock_data('daily_open_close', {'symbol': symbol})
+        if data:
+            return data['close']
+        else:
+            print("Could not retrieve the current price.")
+            return None
+
+    def handle_view_watchlist(self):
+        print("Viewing your watchlist...")
+        try:
+            response = requests.get(f'{self.base_url}view_watchlist')
+            response.raise_for_status()
+            data = response.json()
+            watchlist = data.get('watchlist', [])
+            if watchlist:
+                print("Your Watchlist:")
+                for item in watchlist:
+                    print(f"Symbol: {item['symbol']}, Target Price: {item['price']}")
+            else:
+                print("Your watchlist is empty.")
+        except requests.HTTPError as http_err:
+            print(f'HTTP error occurred: {http_err}')
+        except Exception as err:
+            print(f'An error occurred: {err}')
+
     # TODO: Implement news functionality
 
     # TODO: Implement alerts functionality
@@ -68,10 +118,14 @@ Main Commands:
   - top-stocks: View top-performing stocks
   - bottom-stocks: View lowest-performing stocks
   - daily-open-close: Get the most recent open and close prices for a stock
-  - alerts: Set up trading alerts
-  - news: Access the latest financial news
+  - add-watchlist: Add a stock to your watchlist
+  - view-watchlist: View your current watchlist
   - help: List all commands with descriptions
   - exit: Exit the application
+
+  - alerts: Set up trading alerts
+  - news: Access the latest financial news
+
 '''
 # TODO: Add new commands to welcome prompt
 
@@ -99,6 +153,12 @@ Main Commands:
             elif command == 'help':
                 self.display_command_help()
 
+            elif command == 'add-watchlist':
+                self.handle_add_to_watchlist()
+
+            elif command == 'view-watchlist':
+                self.handle_view_watchlist()
+
             else:
                 print(f"Unknown command: {command}. Please type 'help' for options.")
 
@@ -108,6 +168,8 @@ Main Commands:
             'top-stocks': 'View top-performing stocks',
             'bottom-stocks': 'View lowest-performing stocks',
             'daily-open-close': 'View the most recent open and close prices for a given symbol',
+            'add-watchlist': 'Add a stock to your watchlist',
+            'view-watchlist': 'View your current watchlist',
             # TODO: Add new commands here
         }
         print("Available commands:")
