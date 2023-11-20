@@ -172,7 +172,7 @@ def get_current_price(symbol):
 @app.route('/search_places', methods=['GET'])
 def search_places():
     """Endpoint to search for places using Google Places API."""
-    query = request.args.get('query', 'pet shelters in Oregon')
+    query = request.args.get('query', 'brokerages in Denver')
 
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
