@@ -10,7 +10,7 @@ This microservice interfaces with the Google Places API, providing two endpoints
 
 #### Making Requests
 
-- **Base URL**: The microservice runs on `http://<your-server-ip>:<port>`. Replace `<your-server-ip>` and `<port>` with your server's IP address and port number.
+- **Base URL**: By default, the microservice runs on `http://localhost:5000`. If you deploy this application on a different server or change the port, replace `localhost` with your server's IP address and `5000` with the new port number.
 
 - **Endpoints**:
   - `/search_places`: Performs text-based searches for places.
@@ -18,8 +18,8 @@ This microservice interfaces with the Google Places API, providing two endpoints
 
 - **Request Format**:
   - Send GET requests to the endpoints with the required parameters.
-  - Example for `/search_places`: `GET http://<your-server-ip>:<port>/search_places?query=coffee+shops+in+New+York`
-  - Example for `/search_nearby`: `GET http://<your-server-ip>:<port>/search_nearby?lat=40.7128&lng=-74.0060&radius=1000&type=restaurant`
+  - Example for `/search_places`: `GET http://localhost:5000/search_places?query=veterinarians+in+Corvallis`
+  - Example for `GET http://localhost:5000/search_nearby?lat=44.5646&lng=-123.2620&radius=5000&type=veterinary_care`
 
 ### Receiving Responses
 
@@ -37,7 +37,14 @@ This microservice interfaces with the Google Places API, providing two endpoints
 
 1. Clone the repository to your local machine.
 2. Install the required Python packages: `pip install flask requests`.
-3. Set up an environment variable `GOOGLE_PLACES_API_KEY` with your Google Places API key.
+3. Set up an environment variable for the Google Places API key:
+  - On Unix/Linux/macOS:  
+     `export GOOGLE_PLACES_API_KEY='your_api_key_here'`
+  - On Windows Command Prompt:  
+     `set GOOGLE_PLACES_API_KEY=your_api_key_here`
+  - On Windows PowerShell:  
+     `$env:GOOGLE_PLACES_API_KEY='your_api_key_here'`  
+   Replace `your_api_key_here` with your actual Google Places API key.
 4. Run the application: `python microservice_for_diana.py`.
 
 ## Usage
