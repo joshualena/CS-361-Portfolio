@@ -4,6 +4,7 @@ import requests
 class StockInsightCLI:
     def __init__(self):
         self.base_url = 'http://localhost:5000/'
+        self.watchlist_service_url = 'http://localhost:5001/'
 
     def fetch_stock_data(self, endpoint, params):
         try:
@@ -60,7 +61,7 @@ class StockInsightCLI:
         price = input("Enter the target price: ").strip()
 
         try:
-            response = requests.post(f'{self.base_url}add_to_watchlist', json={'symbol': symbol, 'price': price})
+            response = requests.post(f'{self.watchlist_service_url}add_to_watchlist', json={'symbol': symbol, 'price': price})
             response.raise_for_status()
             data = response.json()
             print(data.get('message', 'Stock added to watchlist successfully'))
@@ -82,7 +83,7 @@ class StockInsightCLI:
     def handle_view_watchlist(self):
         print("Viewing your watchlist...")
         try:
-            response = requests.get(f'{self.base_url}view_watchlist')
+            response = requests.get(f'{watchlist_service_url}view_watchlist')
             response.raise_for_status()
             data = response.json()
             watchlist = data.get('watchlist', [])
