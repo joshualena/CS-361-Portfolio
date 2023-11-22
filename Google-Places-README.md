@@ -31,6 +31,8 @@ This microservice interfaces with the Google Places API, providing two endpoints
 
 ### UML Sequence Diagram
 
+![UML Sequence Diagram](https://github.com/joshualena/CS-361-Portfolio/blob/main/images/Screenshot%202023-11-22%20at%201.42.23%20PM.png)
+
 ## Installation and Setup
 
 1. Clone the repository to your local machine.
