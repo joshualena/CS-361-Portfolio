@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import requests
 import os
+from urllib.parse import quote_plus
 
 app = Flask(__name__)
 
@@ -173,11 +174,11 @@ def get_current_price(symbol):
 def search_places():
     """Endpoint to search for places using Google Places API."""
     query = request.args.get('query', 'brokerages in Denver')
-
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
 
-    google_places_url = f'https://maps.googleapis.com/maps/api/place/textsearch/json?query={query}&key={google_places_api_key}'
+    encoded_query = quote_plus(query)
+    google_places_url = f'https://maps.googleapis.com/maps/api/place/textsearch/json?query={encoded_query}&key={google_places_api_key}'
 
     try:
         response = requests.get(google_places_url)

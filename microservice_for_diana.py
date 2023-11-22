@@ -1,3 +1,13 @@
+from flask import Flask, jsonify, request
+import requests
+import os
+from urllib.parse import quote_plus
+
+app = Flask(__name__)
+
+# Load the API key for Google Places API from environment variables for security
+google_places_api_key = os.getenv('GOOGLE_PLACES_API_KEY')
+
 @app.route('/search_places', methods=['GET'])
 def search_places():
     """
@@ -11,40 +21,12 @@ def search_places():
     Parameters:
     query (str): A text string on which the search is based. Defaults to 'veternarians in Corvallis' if not provided.
     """
-
-    # Fetch the 'query' parameter from the request; default to 'veternarians in Corvallis'
-    query = request.args.get('query', 'veternarians in Corvallis')
-
-    # Check if the query parameter is provided, return an error if not
+    query = request.args.get('query', 'veterinarians in Corvallis')
     if not query:
         return jsonify({'error': 'Query parameter is required'}), 400
 
-    # Construct the URL for the Google Places API Text Search request
-    google_places_url = f'https://maps.googleapis.com/maps/api/place/textsearch/json?query={query}&key={google_places_api_key}'
-
-    try:
-        # Make the API request
-        response = requests.get(google_places_url)
-        response.raise_for_status()  # Check for HTTP errors
-        data = response.json()  # Parse the response JSON
-        return jsonify(data)  # Return the parsed JSON as a response
-    except requests.HTTPError as http_err:
-        # Handle HTTP errors
-        return jsonify({'error': f'HTTP error occurred: {http_err}'}), 500
-    except Exception as err:
-        # Handle any other exceptions
-        return jsonify({'error': f'An unexpected error occurred: {err}'}), 500
-
-
-@app.route('/search_places', methods=['GET'])
-def search_places():
-    """Endpoint to search for places using Google Places API."""
-    query = request.args.get('query', 'veternarians in Corvallis')
-
-    if not query:
-        return jsonify({'error': 'Query parameter is required'}), 400
-
-    google_places_url = f'https://maps.googleapis.com/maps/api/place/textsearch/json?query={query}&key={google_places_api_key}'
+    encoded_query = quote_plus(query)
+    google_places_url = f'https://maps.googleapis.com/maps/api/place/textsearch/json?query={encoded_query}&key={google_places_api_key}'
 
     try:
         response = requests.get(google_places_url)
@@ -72,29 +54,25 @@ def search_nearby():
     radius (str): The radius (in meters) within which to return place results. Default is 5000 meters.
     type (str): The type of place to filter the results. Default is set to 'veterinary_care'.
     """
+    lat = request.args.get('lat')
+    lng = request.args.get('lng')
+    radius = request.args.get('radius', '5000')
+    type = request.args.get('type', 'veterinary_care')
 
-    # Fetch parameters from the request
-    lat = request.args.get('lat')  # Latitude
-    lng = request.args.get('lng')  # Longitude
-    radius = request.args.get('radius', '5000')  # Radius in meters, default is 5000 meters (5 km)
-    type = request.args.get('type', 'veterinary_care')  # Default type is set to veterinary care
-
-    # Validate that both latitude and longitude are provided
     if not lat or not lng:
         return jsonify({'error': 'Latitude and longitude are required parameters'}), 400
 
-    # Construct the URL for the Google Places API Nearby Search request
     google_places_url = f'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius={radius}&type={type}&key={google_places_api_key}'
 
     try:
-        # Make the API request
         response = requests.get(google_places_url)
-        response.raise_for_status()  # Check for HTTP errors
-        data = response.json()  # Parse the response JSON
-        return jsonify(data)  # Return the parsed JSON as a response
+        response.raise_for_status()
+        data = response.json()
+        return jsonify(data)
     except requests.HTTPError as http_err:
-        # Handle HTTP errors
         return jsonify({'error': f'HTTP error occurred: {http_err}'}), 500
     except Exception as err:
-        # Handle any other exceptions
         return jsonify({'error': f'An unexpected error occurred: {err}'}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
